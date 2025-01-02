@@ -1,15 +1,17 @@
 package com.example.diceroller.components
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
 fun CustomRollDialog(
@@ -20,9 +22,6 @@ fun CustomRollDialog(
     var numberOfDice by remember { mutableStateOf(1) }
     var diceSides by remember { mutableStateOf(diceSideOptions[0]) }
 
-    var numberOfDiceExpanded by remember { mutableStateOf(false) }
-    var diceSidesExpanded by remember { mutableStateOf(false) }
-
     AlertDialog(
         onDismissRequest = onClose,
         title = {
@@ -31,44 +30,58 @@ fun CustomRollDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 // Number of Dice Spinner
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("Quantity: ", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.align(Alignment.CenterVertically))
-                    selectBox({numberOfDiceExpanded = !numberOfDiceExpanded}, numberOfDice)
-                }
-                DropdownMenu(
-                    expanded = numberOfDiceExpanded,
-                    onDismissRequest = { numberOfDiceExpanded = false }
-                ) {
-                    (1..99).forEach { option ->
-                        DropdownMenuItem(
-                            onClick = {
-                                numberOfDice = option
-                                numberOfDiceExpanded = false
-                            },
-                            text = { Text(option.toString()) }
-                        )
-                    }
-                }
+                Text(text = "Quantity", style = MaterialTheme.typography.bodyMedium)
+                AndroidView(
+                    factory = { context ->
+                        Spinner(context).apply {
+                            adapter = ArrayAdapter(
+                                context,
+                                android.R.layout.simple_spinner_dropdown_item,
+                                (1..99).toList()
+                            )
+                            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                                override fun onItemSelected(
+                                    parent: AdapterView<*>?,
+                                    view: android.view.View?,
+                                    position: Int,
+                                    id: Long
+                                ) {
+                                    numberOfDice = (1..99).toList()[position]
+                                }
+
+                                override fun onNothingSelected(parent: AdapterView<*>?) {}
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 // Dice Sides Spinner
-                Row (horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("Sides: ", style = MaterialTheme.typography.bodyMedium,  modifier = Modifier.align(Alignment.CenterVertically))
-                    selectBox({diceSidesExpanded = !diceSidesExpanded}, diceSides)
-                }
-                DropdownMenu(
-                    expanded = diceSidesExpanded,
-                    onDismissRequest = { diceSidesExpanded = false }
-                ) {
-                    diceSideOptions.forEach { option ->
-                        DropdownMenuItem(
-                            onClick = {
-                                diceSides = option
-                                diceSidesExpanded = false
-                            },
-                            text = { Text(option.toString()) }
-                        )
-                    }
-                }
+                Text(text = "Sides", style = MaterialTheme.typography.bodyMedium)
+                AndroidView(
+                    factory = { context ->
+                        Spinner(context).apply {
+                            adapter = ArrayAdapter(
+                                context,
+                                android.R.layout.simple_spinner_dropdown_item,
+                                diceSideOptions
+                            )
+                            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                                override fun onItemSelected(
+                                    parent: AdapterView<*>?,
+                                    view: android.view.View?,
+                                    position: Int,
+                                    id: Long
+                                ) {
+                                    diceSides = diceSideOptions[position]
+                                }
+
+                                override fun onNothingSelected(parent: AdapterView<*>?) {}
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         },
         confirmButton = {
@@ -82,30 +95,4 @@ fun CustomRollDialog(
             }
         }
     )
-}
-
-@Composable
-private fun selectBox(onClick: () -> Unit, display: Int) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                shape = MaterialTheme.shapes.small
-            )
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "$display",
-            modifier = Modifier.align(Alignment.CenterStart),
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Icon(
-            imageVector = Icons.Default.ArrowDropDown,
-            contentDescription = "Expand",
-            modifier = Modifier.align(Alignment.CenterEnd)
-        )
-    }
 }
