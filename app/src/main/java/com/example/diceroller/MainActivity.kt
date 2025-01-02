@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun diceApp() {
+    var showRollDialog by remember { mutableStateOf(false) }
     var numberOfDice by remember { mutableStateOf(1) } // Default to 1 dice
     var numberOfDiceExpanded by remember { mutableStateOf(false) }
 
@@ -44,6 +45,8 @@ fun diceApp() {
 
     var results by remember { mutableStateOf(listOf<Int>()) }
     var favorites by remember { mutableStateOf(listOf<Pair<Int, Int>>()) }
+    var showDialog by remember { mutableStateOf(false) }
+
 
     fun rollDice() {
         results = List(numberOfDice) { Random.nextInt(1, diceSides + 1) }
@@ -82,76 +85,188 @@ fun diceApp() {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { numberOfDiceExpanded = true
-                           results = listOf()},
-            text = "Number of Dice:\n$numberOfDice",
-            style = MaterialTheme.typography.bodyMedium
-            )
-            DropdownMenu(
-                expanded = numberOfDiceExpanded,
-                onDismissRequest = { numberOfDiceExpanded = false }
-            ) {
-                (1..99).forEach { option ->
-                    DropdownMenuItem(
-                        onClick = {
-                            numberOfDice = option // Update selected option
-                            numberOfDiceExpanded = false // Close the dropdown
-                        },
-                        text = { Text(option.toString()) }
-                    )
-                }
-            }
+            //default 1dx
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(diceSideOptions.takeLast(diceSideOptions.count() - 1).chunked(2)) { rowItems ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp) // Add spacing between buttons
+                    ) {
+                        rowItems.forEach { sides ->
+                            Button(
+                                onClick = {
+                                    numberOfDice = 1
+                                    diceSides = sides
+                                    rollDice()
+                                    showDialog = true
+                                },
+                                modifier = Modifier
+                                    .weight(1f) // Distribute buttons equally within the row
+                            ) {
+                                Text("Roll 1d${sides}")
+                            }
+                        }
 
-            // Dropdown for dice sides
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { diceSidesExpanded = true
-                               results = listOf()},
-                text = "Dice Sides:\n$diceSides",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            DropdownMenu(
-                expanded = diceSidesExpanded,
-                onDismissRequest = { diceSidesExpanded = false }
-            ) {
-                diceSideOptions.forEach { option ->
-                    DropdownMenuItem(
-                        onClick = {
-                            diceSides = option // Update selected option
-                            diceSidesExpanded = false // Close the dropdown
-                        },
-                        text = { Text(option.toString()) }
-                    )
-                }
-            }
-                Button(onClick = {
-                    rollDice()
-                }) {
-                    Text("Roll")
-                }
-
-            // Display the results
-            if (results.isNotEmpty()) {
-                Text(
-                    modifier = Modifier.padding(8.dp),
-                    text = """
-                        The dice roll for ${numberOfDice}d${diceSides} is ${results.joinToString { it.toString() }}
-                        Total is ${results.sum()}
-                    """.trimIndent(),
-                )
-                if (!favorites.contains(Pair(numberOfDice, diceSides))){
-                    Button(
-                        onClick = {
-                            favorites = favorites + Pair(numberOfDice, diceSides)
-                        }) {
-                        Text("Add roll to favorites")
+                        // If the row has only one button, add an empty space to balance the layout
+                        if (rowItems.size < 2) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
                 }
+            }
+            Row{
+                Button(onClick = {
+                    showRollDialog = true
+                },
+                    modifier = Modifier.weight(1f)) {
+                    Text("Custom Roll")
+                }
+            }
 
+            //Custom dice roll
+            if (showRollDialog) {
+                AlertDialog(
+                    onDismissRequest = { showRollDialog = false },
+                    title = {
+                        Text("Roll Result")
+                    },
+                    text = {
+                        Column {
+
+
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        numberOfDiceExpanded = true
+                                        results = listOf()
+                                    },
+                                text = "Number of Dice:\n$numberOfDice",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            DropdownMenu(
+                                expanded = numberOfDiceExpanded,
+                                onDismissRequest = { numberOfDiceExpanded = false }
+                            ) {
+                                (1..99).forEach { option ->
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            numberOfDice = option // Update selected option
+                                            numberOfDiceExpanded = false // Close the dropdown
+                                        },
+                                        text = { Text(option.toString()) }
+                                    )
+                                }
+                            }
+
+                            // Dropdown for dice sides
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        diceSidesExpanded = true
+                                        results = listOf()
+                                    },
+                                text = "Dice Sides:\n$diceSides",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            DropdownMenu(
+                                expanded = diceSidesExpanded,
+                                onDismissRequest = { diceSidesExpanded = false }
+                            ) {
+                                diceSideOptions.forEach { option ->
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            diceSides = option // Update selected option
+                                            diceSidesExpanded = false // Close the dropdown
+                                        },
+                                        text = { Text(option.toString()) }
+                                    )
+                                }
+                            }
+                            Button(onClick = {
+                                rollDice()
+                                showDialog = true
+                                showRollDialog = false
+                            }) {
+                                Text("Roll")
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        // Close button
+                        Button(
+                            onClick = {
+                                showRollDialog = false // Close the dialog
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Close")
+                        }
+                    }
+                )
+            }
+
+
+            // Display the results
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = {
+                        Text("Roll Result")
+                    },
+                    text = {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            // Roll result
+                            Text(
+                                text = "The dice roll for ${numberOfDice}d${diceSides} is ${results.joinToString { it.toString() }}"
+                                        ,style = TextStyle(textAlign = TextAlign.Center)
+                            )
+                            Text(
+                                text = "Total is ${results.sum()}",
+                                style = MaterialTheme.typography.displaySmall
+                            )
+
+                            // Reroll button
+                            Button(
+                                onClick = {
+                                    rollDice() // Reroll
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Reroll")
+                            }
+
+                            // Add to favorites button (conditionally rendered)
+                            if (numberOfDice > 1 && !favorites.contains(Pair(numberOfDice, diceSides))) {
+                                Button(
+                                    onClick = {
+                                        favorites = favorites + Pair(numberOfDice, diceSides)
+                                        showDialog = false
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Add roll to favorites")
+                                }
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        // Close button
+                        Button(
+                            onClick = {
+                                showDialog = false // Close the dialog
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Close")
+                        }
+                    }
+                )
             }
 
             if (favorites.isNotEmpty()){
@@ -170,6 +285,7 @@ fun diceApp() {
                                     numberOfDice = favorite.first
                                     diceSides = favorite.second
                                     rollDice()
+                                    showDialog = true
                                 })
                         {Text("Roll ${favorite.first}d${favorite.second}")}
 
