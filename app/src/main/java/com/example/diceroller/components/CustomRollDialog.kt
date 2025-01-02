@@ -1,11 +1,13 @@
 package com.example.diceroller.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -27,15 +29,12 @@ fun CustomRollDialog(
             Text("Custom Roll")
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Number of Dice Dropdown
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { numberOfDiceExpanded = true },
-                    text = "Number of Dice: $numberOfDice",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                // Number of Dice Spinner
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text("Quantity: ", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.align(Alignment.CenterVertically))
+                    selectBox({numberOfDiceExpanded = !numberOfDiceExpanded}, numberOfDice)
+                }
                 DropdownMenu(
                     expanded = numberOfDiceExpanded,
                     onDismissRequest = { numberOfDiceExpanded = false }
@@ -51,14 +50,11 @@ fun CustomRollDialog(
                     }
                 }
 
-                // Dice Sides Dropdown
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { diceSidesExpanded = true },
-                    text = "Dice Sides: $diceSides",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                // Dice Sides Spinner
+                Row (horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text("Sides: ", style = MaterialTheme.typography.bodyMedium,  modifier = Modifier.align(Alignment.CenterVertically))
+                    selectBox({diceSidesExpanded = !diceSidesExpanded}, diceSides)
+                }
                 DropdownMenu(
                     expanded = diceSidesExpanded,
                     onDismissRequest = { diceSidesExpanded = false }
@@ -86,4 +82,30 @@ fun CustomRollDialog(
             }
         }
     )
+}
+
+@Composable
+private fun selectBox(onClick: () -> Unit, display: Int) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                shape = MaterialTheme.shapes.small
+            )
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "$display",
+            modifier = Modifier.align(Alignment.CenterStart),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Icon(
+            imageVector = Icons.Default.ArrowDropDown,
+            contentDescription = "Expand",
+            modifier = Modifier.align(Alignment.CenterEnd)
+        )
+    }
 }
