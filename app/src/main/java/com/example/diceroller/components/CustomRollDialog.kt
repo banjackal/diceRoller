@@ -85,12 +85,12 @@ fun CustomRollDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { onRoll(numberOfDice, diceSides) }) {
+            Button(onClick = { onRoll(numberOfDice, diceSides) }, modifier = Modifier.height(60.dp)) {
                 Text("Roll")
             }
         },
         dismissButton = {
-            Button(onClick = onClose) {
+            Button(onClick = onClose, modifier = Modifier.height(60.dp)) {
                 Text("Close")
             }
         }

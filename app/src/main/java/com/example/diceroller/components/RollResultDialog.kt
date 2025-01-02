@@ -3,6 +3,7 @@ package com.example.diceroller.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -47,7 +48,7 @@ fun RollResultDialog(
                 // Reroll button
                 Button(
                     onClick = onReroll,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().height(60.dp),
                 ) {
                     Text("Reroll")
                 }
@@ -56,7 +57,7 @@ fun RollResultDialog(
                 if ((numberOfDice > 1 || numberOfDice == 1 && diceSides == 2) && !isFavorite) {
                     Button(
                         onClick = onAddFavorite,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().height(60.dp),
                     ) {
                         Text("Add Roll to Favorites")
                     }
@@ -65,7 +66,7 @@ fun RollResultDialog(
                 // Close button
                 Button(
                     onClick = onClose,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().height(60.dp),
                 ) {
                     Text("Close")
                 }

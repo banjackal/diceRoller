@@ -1,9 +1,6 @@
 package com.example.diceroller
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -26,9 +23,6 @@ fun DiceApp() {
         topBar = {
             AppBar(title = "Dice Roller")
         },
-        bottomBar = {
-            BottomBar(text = "This is a test android native app")
-        }
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding).padding(16.dp),
@@ -46,7 +40,7 @@ fun DiceApp() {
 
             Button(
                 onClick = { showRollDialog = true },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(60.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
             ) {
                 Text("Custom Roll")

@@ -3,6 +3,7 @@ package com.example.diceroller.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -20,15 +21,15 @@ fun FavoritesList(
 ) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(favorites) { favorite ->
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(60.dp),
                     onClick = { onRollFavorite(favorite) }
                 ) {
                     Text("Roll ${favorite.first}d${favorite.second}")
                 }
                 Button(
-                    modifier = Modifier.weight(0.2f),
+                    modifier = Modifier.weight(0.2f).height(60.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                     onClick = { onRemoveFavorite(favorite) }
                 ) {
