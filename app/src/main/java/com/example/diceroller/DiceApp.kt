@@ -1,14 +1,52 @@
 package com.example.diceroller
 
+import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.diceroller.components.*
+import kotlinx.coroutines.launch
 
 @Composable
-fun DiceApp() {
+fun DiceApp(context: Context) {
+    val favoritesDataStore = remember { FavoritesDataStore(context) }
+    var favorites by remember { mutableStateOf(emptyList<Pair<Int, Int>>()) }
+    val coroutineScope = rememberCoroutineScope()
+
+    // Observe favorites from DataStore
+    LaunchedEffect(Unit) {
+        favoritesDataStore.favoritesFlow.collect { savedFavorites ->
+            favorites = savedFavorites
+        }
+    }
+
+    diceApp(
+        favorites = favorites,
+        onAddFavorite = { favorite ->
+            favorites = favorites + favorite
+            // Save the updated favorites list to DataStore
+            coroutineScope.launch {
+                favoritesDataStore.saveFavorites(favorites)
+            }
+        },
+        onRemoveFavorite = { favorite ->
+            favorites = favorites - favorite
+            // Save the updated favorites list to DataStore
+            coroutineScope.launch {
+                favoritesDataStore.saveFavorites(favorites)
+            }
+        }
+    )
+}
+
+@Composable
+fun diceApp(
+    favorites: List<Pair<Int, Int>>,
+    onAddFavorite: (Pair<Int, Int>) -> Unit,
+    onRemoveFavorite: (Pair<Int, Int>) -> Unit
+) {
     var showRollDialog by remember { mutableStateOf(false) }
     var showResultDialog by remember { mutableStateOf(false) }
 
@@ -17,7 +55,6 @@ fun DiceApp() {
     var diceSides by remember { mutableStateOf(diceSideOptions[0]) }
 
     var results by remember { mutableStateOf(listOf<Int>()) }
-    var favorites by remember { mutableStateOf(listOf<Pair<Int, Int>>()) }
 
     Scaffold(
         topBar = {
@@ -56,9 +93,7 @@ fun DiceApp() {
                         results = rollDice(numberOfDice, diceSides)
                         showResultDialog = true
                     },
-                    onRemoveFavorite = { favorite ->
-                        favorites = favorites - favorite
-                    }
+                    onRemoveFavorite = onRemoveFavorite
                 )
             }
 
@@ -85,10 +120,7 @@ fun DiceApp() {
                     onReroll = {
                         results = rollDice(numberOfDice, diceSides)
                     },
-                    onAddFavorite = {
-                        favorites = favorites + Pair(numberOfDice, diceSides)
-                        showResultDialog = false
-                    },
+                    onAddFavorite = onAddFavorite,
                     onClose = { showResultDialog = false }
                 )
             }

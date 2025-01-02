@@ -20,7 +20,7 @@ fun RollResultDialog(
     results: List<Int>,
     isFavorite: Boolean,
     onReroll: () -> Unit,
-    onAddFavorite: () -> Unit,
+    onAddFavorite: (Pair<Int, Int>) -> Unit,
     onClose: () -> Unit
 ) {
     AlertDialog(
@@ -56,7 +56,9 @@ fun RollResultDialog(
                 // Add to Favorites button (conditionally rendered)
                 if ((numberOfDice > 1 || numberOfDice == 1 && diceSides == 2) && !isFavorite) {
                     Button(
-                        onClick = onAddFavorite,
+                        onClick = {
+                            onAddFavorite(Pair(numberOfDice, diceSides))
+                                  onClose()},
                         modifier = Modifier.fillMaxWidth().height(60.dp),
                     ) {
                         Text("Add Roll to Favorites")
